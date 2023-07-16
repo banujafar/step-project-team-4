@@ -3,6 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+// css plugin
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 
 module.exports = ({ mode }) => {
   mode = mode ?? 'development';
@@ -16,31 +19,40 @@ module.exports = ({ mode }) => {
       assetModuleFilename: "img/[name][ext]",
     },
 
-    // module: {
-    //   rules: [
-
-    //     {
-    //       test: /\.scss$/,
-    //       use: ['style-loader', 'css-loader', 'sass-loader']
-    //     },
-
-    //   ],
-
-    // },
-    // devtool: false,
+    module: {
+      rules: [
+        {
+          test: /\.scss$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+            'sass-loader'
+          ],
+        },
+        {
+          test: /\.css$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+          ],
+        },
+      ],
+    },
+    devtool: false,
     plugins: [
-
-      // new CopyWebpackPlugin({
-      //   patterns: [
-      //     { from: 'src/img', to: 'img' },
-      //   ],
-      // }),
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: 'src/img', to: 'img' },
+        ],
+      }),
+      new MiniCssExtractPlugin({
+        filename: 'styles.min.css', // Output CSS file name
+      }),
       new HtmlWebpackPlugin({
         title: 'Forkio App',
         filename: 'index.html',
-        template: './src/index.html'
+        template: './src/index.html',
       }),
-
       new ImageminPlugin({
         test: /\.(jpe?g|png|gif|svg)$/i,
         deleteOriginalAssets: true,
@@ -66,5 +78,5 @@ module.exports = ({ mode }) => {
       compress: true,
       historyApiFallback: true,
     },
-  }
-}
+  };
+};
