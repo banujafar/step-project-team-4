@@ -3,6 +3,7 @@
 
 import Modal from './modal.js';
 import Visit from './visit.js';
+import './../css/style.css'
 // import CreateVisit from './createVisit.js';
 
 const loginBtn = document.querySelector('.btn-login');
