@@ -11,7 +11,12 @@ module.exports = ({ mode }) => {
   mode = mode ?? 'development';
   return {
     mode: mode,
-    entry: path.resolve(__dirname, 'src/js/index.js'),
+    entry: {
+      main: [
+        path.resolve(__dirname, 'src/js/index.js'), 
+        path.resolve(__dirname, 'src/style.css'),   
+      ],
+    },
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'scripts.min.js',
