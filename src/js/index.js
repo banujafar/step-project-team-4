@@ -21,7 +21,7 @@ loginBtn.addEventListener('click', function () {
         <input type="password" id="password" placeholder="Password" class="modal-input">
         <span class="error-message"></span>
         <button class="modal-submit-btn">Login</button>`
-
+        
         loginModal = new Modal('Login Modal');
         loginModal.render(content);
         checkFields(loginModal);
@@ -93,15 +93,18 @@ async function displayCards() {
             noItemMsg.style.display = 'block'
         }
         const visits = data.map((visit) => {
-            const newVisit = new Visit(visit.fullname, visit.target, visit.id, visit.description);
+            console.log(visit)
+            const newVisit = new Visit(visit.fullName, visit.target, visit.id, visit.description);
             return newVisit
         })
+   
+       console.log(visits)
         console.log(data)
 
         visits.forEach((newVisit) => {
             visitsWrapper.appendChild(newVisit.render());
         });
-
+        //visits.fill(10)
         return visits;
     } catch (error) {
         console.error(error);
@@ -141,8 +144,10 @@ async function fetchCards() {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             }
         })
-        const data = await response.json()
-        return data
+        const data = await response.json();
+        const slicedData = data.slice(-10);
+
+        return slicedData
 
     } catch (error) {
         console.error(error)
@@ -164,12 +169,12 @@ function createVisit() {
         <option value="Therapist">Therapist</option>
     </select>
     <div class='doctors-info'></div>
+    <button class='create-button btn btn-create-visit'>Create</button>
     `;
 
     const createVisitModal = new Modal('Create Visit');
     createVisitModal.render(content);
     const modalBody = createVisitModal.modal.querySelector('.modal-body');
-
     // Event delegation to handle the change event on the select element
     modalBody.addEventListener('change', (event) => {
         const select = event.target;
@@ -177,10 +182,11 @@ function createVisit() {
         if (select.id === 'create-visit') {
             // Clear the existing content in the modal body
             const div = modalBody.querySelector('.doctors-info');
+            const createButton=modalBody.querySelector('.create-button');
+            createButton.addEventListener('click',()=>handleSend(selectedOption,createVisitModal))
             if (div) {
                 div.innerHTML = '';
             }
-
 
             const selectedOption = select.options[select.selectedIndex].value;
             console.log(selectedOption);
@@ -202,5 +208,57 @@ function createVisit() {
         }
     })
 
+}
+
+const handleSend=(selectedOption,createVisitModal)=>{
+    const modalBody=document.querySelector('.modal').querySelector('.modal-body');
+    const modalInputs=[...modalBody.querySelectorAll('.visit-input')]
+    const modalInputData = {};
+
+    modalInputs.forEach(input => {
+        const key = input.name;
+        const value = input.value;
+        modalInputData[key] = value;
+    });
+
+    sendCards(modalInputData,selectedOption,createVisitModal)
+   
+}
+const sendCards=async (obj,selectedOption,createVisitModal)=>{
+ try{
+    const {title,description,urgency,fullName,bp,bmi,disease,age,visitDate}= obj;
+   // console.log(title)
+      const response = await fetch("https://ajax.test-danit.com/api/v2/cards", {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem("token")}`
+          },
+          body: JSON.stringify({
+              fullName:fullName,
+              title: title,
+              description: description,
+              doctor: selectedOption,
+              bp: bp,
+              urgency:urgency,
+              disease:disease,
+              visitDate:visitDate,
+              age: age,
+              weight: bmi,
+          })
+      });
+      if(response.ok){
+        // Close the modal when the response is successful
+    createVisitModal.close()
+    // const newVisit=new Visit('',selectedOption,1,description)
+    // newVisit.render();
+    displayCards()
+      }
+      const response_1 = await response.json();
+      return console.log(response_1);
+ }
+ catch(err){
+    console.log('Error:',err)
+ }
 }
 

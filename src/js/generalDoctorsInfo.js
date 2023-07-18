@@ -23,11 +23,11 @@ export class VisitDoctors {
     renderGeneralInfo() {
         const div = document.createElement("div");
         div.innerHTML = `
-        <input class="modal-input" type="text" placeholder="Visit purpose" value="${this.visitPurpose
-            }"><br>
-        <input class="modal-input" type="text" placeholder="Brief visit description" value="${this.briefDescription
-            }"><br>
-        <select class="modal-input">
+        <input class="modal-input visit-input" type="text" placeholder="Visit purpose" value="${this.visitPurpose
+            }" name="title"><br>
+        <input class="modal-input visit-input" type="text" placeholder="Brief visit description" value="${this.briefDescription
+            }" name="description"><br>
+        <select class="modal-input visit-input" name="urgency">
         <option>Urgency Level</option>
           <option value="normal" ${this.urgencyLevel === "normal" ? "selected" : ""
             }>Normal</option>
@@ -36,8 +36,8 @@ export class VisitDoctors {
           <option value="urgent" ${this.urgencyLevel === "urgent" ? "selected" : ""
             }>Urgent</option>
         </select><br>
-       <input class="modal-input" type="text" placeholder="Full name" value="${this.fullName
-            }"><br>
+       <input class="modal-input visit-input" type="text" placeholder="Full name" value="${this.fullName
+            }" name="fullName"><br>
       `;
 
         const inputPurpose = div.querySelector(
@@ -81,10 +81,10 @@ export class VisitCardiologist extends VisitDoctors {
     renderCardiologistInfo() {
         const div = document.createElement("div");
         div.innerHTML = `
-          <input class="modal-input" type="text" placeholder="Normal blood pressure" value="${this.bloodPressure}"><br>
-          <input class="modal-input" type="number" placeholder="Body Mass Index (BMI)" value="${this.bmi}"><br>
-          <input class="modal-input" type="number" placeholder="Previously diagnosed cardiovascular diseases" value="${this.age}"><br>
-         <input class="modal-input" type="Age" placeholder="Age" value="${this.prevDiseases}"><br>
+          <input class="modal-input visit-input" type="text" placeholder="Normal blood pressure" value="${this.bloodPressure}" name="bp"><br>
+          <input class="modal-input visit-input" type="number" placeholder="Body Mass Index (BMI)" value="${this.bmi}" name="bmi"><br>
+          <input class="modal-input visit-input" type="number" placeholder="Previously diagnosed cardiovascular diseases" value="${this.age}" name="age"><br>
+         <input class="modal-input visit-input" type="Age" placeholder="Age" value="${this.prevDiseases}" name="disease"><br>
         `;
 
         const inputbloodPress = div.querySelector(
@@ -124,7 +124,7 @@ export class VisitDentist extends VisitDoctors{
     renderDentistInfo(){
          const div=document.createElement('div');
          div.innerHTML=`
-         <input class="modal-input" type="text" value="${this.visitDate}" placeholder="Last visit date"/>
+         <input class="modal-input visit-input" type="text" value="${this.visitDate}" placeholder="Last visit date" name="visitDate"/>
          `;
          const inputVisitDate=div.querySelector('input[placeholder="Last visit date"]');
 
@@ -150,7 +150,7 @@ export class VisitTherapist extends VisitDoctors{
     renderTherapistInfo(){
          const div=document.createElement('div');
          div.innerHTML=`
-         <input class="modal-input" type="number" value="${this.age}" placeholder="Age"/>
+         <input class="modal-input visit-input" type="number" value="${this.age}" placeholder="Age" name="age"/>
          `;
          const inputAge=div.querySelector('input[placeholder="Age"]');
 
