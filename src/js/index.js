@@ -9,7 +9,7 @@ import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from '.
 
 const loginBtn = document.querySelector('.btn-login');
 let loginModal = null;
-
+const token='6af2fb3b-561d-49ec-9695-1ef9166ead95'
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 
@@ -81,7 +81,7 @@ function checkFields(loginModal) {
     })
 }
 
-
+// TODO:DisplayCards() should display only created cards
 async function displayCards() {
     const filterForm = document.querySelector('.form__wrapper');
     filterForm.style.display = 'block';
@@ -141,13 +141,13 @@ async function fetchCards() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${token}`,
             }
         })
         const data = await response.json();
-        const slicedData = data.slice(-10);
-
-        return slicedData
+        console.log(data)
+         
+        return data
 
     } catch (error) {
         console.error(error)
@@ -190,7 +190,9 @@ function createVisit() {
 
             const selectedOption = select.options[select.selectedIndex].value;
             console.log(selectedOption);
-            const doctors = new VisitDoctors('', '', '', '', modalBody);
+          
+            if(selectedOption!=='Select a doctor'){
+                  const doctors = new VisitDoctors('', '', '', '', modalBody);
             doctors.renderGeneralInfo();
             if (selectedOption === 'Cardiologist') {
                 const cardiologist = new VisitCardiologist('', '', '', '', '', '', '', '', modalBody);
@@ -204,6 +206,8 @@ function createVisit() {
                 const therapist = new VisitTherapist('', '', '', '', '', modalBody);
                 therapist.renderTherapistInfo();
             }
+            }
+            
 
         }
     })
@@ -226,13 +230,14 @@ const handleSend=(selectedOption,createVisitModal)=>{
 }
 const sendCards=async (obj,selectedOption,createVisitModal)=>{
  try{
+    // TODO:'SELECT A DATE ' CAN NOT BE OPTION
     const {title,description,urgency,fullName,bp,bmi,disease,age,visitDate}= obj;
    // console.log(title)
       const response = await fetch("https://ajax.test-danit.com/api/v2/cards", {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem("token")}`
+              'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
               fullName:fullName,
@@ -249,10 +254,10 @@ const sendCards=async (obj,selectedOption,createVisitModal)=>{
       });
       if(response.ok){
         // Close the modal when the response is successful
-    createVisitModal.close()
+    createVisitModal.close() 
     // const newVisit=new Visit('',selectedOption,1,description)
     // newVisit.render();
-    displayCards()
+    //displayCards()
       }
       const response_1 = await response.json();
       return console.log(response_1);
