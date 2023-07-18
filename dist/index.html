@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards</title>
+    <link rel="stylesheet" href="./styles.min.css">
+<script defer src="scripts.min.js"></script><link href="styles.min.css" rel="stylesheet"></head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header__wrapper">
+                <a href="#" class="logo">
+                    <img src="./img/logo.jpg" alt="logo">
+                </a>
+                <button class="btn btn-login">
+                    Login
+                </button>
+                <button class="btn btn-create-visit">
+                    Create Visit
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="container">
+            <div class="form__wrapper">
+                <form>
+                    <input type="search" placeholder="search by title">
+
+                    <select id="status" name="status">
+                        <option value="all">all</option>
+                        <option value="open">open</option>
+                        <option value="done">done</option>
+                    </select>
+                    <select id="urgency" name="urgency">
+                        <option value="all">all</option>
+                        <option value="high">high</option>
+                        <option value="normal">normal</option>
+                        <option value="low">low</option>
+                    </select>
+                    <button class="btn-search">search</button>
+                </form>
+            </div>
+            <div class="visits">
+                <h3 class="no-items-message">No items have been added.</h3>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

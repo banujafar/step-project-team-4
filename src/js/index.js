@@ -3,6 +3,8 @@
 
 import Modal from './modal.js';
 import Visit from './visit.js';
+import './../css/style.css'
+import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from './generalDoctorsInfo.js';
 // import CreateVisit from './createVisit.js';
 
 const loginBtn = document.querySelector('.btn-login');
@@ -110,8 +112,10 @@ async function displayCards() {
 
 function handleLogin() {
     const isLoggedIn = localStorage.getItem('loggedIn');
+    const noItemMsg = document.querySelector('.no-items-message');
+    noItemMsg.style.display = 'block'
     if (isLoggedIn === 'true') {
-
+        noItemMsg.style.display = 'none'
         const loginBtn = document.querySelector('.btn-login');
         const createVisitBtn = document.querySelector('.btn-create-visit');
 
@@ -146,18 +150,57 @@ async function fetchCards() {
 }
 
 
-
 // Create Visit section
 
-// const createVisitBtn = document.querySelector('.btn-create-visit');
-// createVisitBtn.addEventListener('click', createVisit)
+const createVisitBtn = document.querySelector('.btn-create-visit');
+createVisitBtn.addEventListener('click', createVisit)
 
-// let currentVisit = null;
+function createVisit() {
+    const content = `
+    <select id="create-visit" class="modal-input">
+        <option value="Select a doctor">Select a doctor</option>
+        <option value="Cardiologist">Cardiologist</option>
+        <option value="Dentist">Dentist</option>
+        <option value="Therapist">Therapist</option>
+    </select>
+    <div class='doctors-info'></div>
+    `;
 
-// function createVisit() {
-//     if (!currentVisit) {
-//         const visit = new CreateVisit(currentVisit)
-//         visit.render()
-//         currentVisit = visit;
-//     }
-// }
+    const createVisitModal = new Modal('Create Visit');
+    createVisitModal.render(content);
+    const modalBody = createVisitModal.modal.querySelector('.modal-body');
+
+    // Event delegation to handle the change event on the select element
+    modalBody.addEventListener('change', (event) => {
+        const select = event.target;
+        console.log(select)
+        if (select.id === 'create-visit') {
+            // Clear the existing content in the modal body
+            const div = modalBody.querySelector('.doctors-info');
+            if (div) {
+                div.innerHTML = '';
+            }
+
+
+            const selectedOption = select.options[select.selectedIndex].value;
+            console.log(selectedOption);
+            const doctors = new VisitDoctors('', '', '', '', modalBody);
+            doctors.renderGeneralInfo();
+            if (selectedOption === 'Cardiologist') {
+                const cardiologist = new VisitCardiologist('', '', '', '', '', '', '', '', modalBody);
+                cardiologist.renderCardiologistInfo();
+            }
+            if (selectedOption === 'Dentist') {
+                const dentist = new VisitDentist('', '', '', '', '', modalBody);
+                dentist.renderDentistInfo();
+            }
+            if (selectedOption === 'Therapist') {
+                const therapist = new VisitTherapist('', '', '', '', '', modalBody);
+                therapist.renderTherapistInfo();
+            }
+
+        }
+    })
+
+}
+
