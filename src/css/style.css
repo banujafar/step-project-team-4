@@ -24,7 +24,7 @@
   width: 100%;
 }
 
-.header__wrapper .btn {
+.btn {
   border: none;
   border-radius: 6px;
   cursor: pointer;

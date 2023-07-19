@@ -10,8 +10,7 @@ import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from '.
 
 const loginBtn = document.querySelector('.btn-login');
 let loginModal = null;
-
-
+const token='6af2fb3b-561d-49ec-9695-1ef9166ead95'
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 
@@ -22,7 +21,7 @@ loginBtn.addEventListener('click', function () {
         <input type="password" id="password" placeholder="Password" class="modal-input">
         <span class="error-message"></span>
         <button class="modal-submit-btn">Login</button>`
-
+        
         loginModal = new Modal('Login Modal');
         loginModal.render(content);
         checkFields(loginModal);
@@ -150,7 +149,8 @@ async function fetchCards() {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             }
         })
-        const data = await response.json()
+        const data = await response.json();
+         
         return data
 
     } catch (error) {
@@ -173,12 +173,12 @@ function createVisit() {
         <option value="Therapist">Therapist</option>
     </select>
     <div class='doctors-info'></div>
+    <button class='create-button btn btn-create-visit'>Create</button>
     `;
 
     const createVisitModal = new Modal('Create Visit');
     createVisitModal.render(content);
     const modalBody = createVisitModal.modal.querySelector('.modal-body');
-
     // Event delegation to handle the change event on the select element
     modalBody.addEventListener('change', (event) => {
         const select = event.target;
@@ -186,14 +186,17 @@ function createVisit() {
         if (select.id === 'create-visit') {
             // Clear the existing content in the modal body
             const div = modalBody.querySelector('.doctors-info');
+            const createButton=modalBody.querySelector('.create-button');
+            createButton.addEventListener('click',()=>handleSend(selectedOption,createVisitModal))
             if (div) {
                 div.innerHTML = '';
             }
 
-
             const selectedOption = select.options[select.selectedIndex].value;
             console.log(selectedOption);
-            const doctors = new VisitDoctors('', '', '', '', modalBody);
+          
+            if(selectedOption!=='Select a doctor'){
+                  const doctors = new VisitDoctors('', '', '', '', modalBody);
             doctors.renderGeneralInfo();
             if (selectedOption === 'Cardiologist') {
                 const cardiologist = new VisitCardiologist('', '', '', '', '', '', '', '', modalBody);
@@ -207,10 +210,66 @@ function createVisit() {
                 const therapist = new VisitTherapist('', '', '', '', '', modalBody);
                 therapist.renderTherapistInfo();
             }
+            }
+            
 
         }
     })
 
+}
+
+
+const handleSend=(selectedOption,createVisitModal)=>{
+    const modalBody=document.querySelector('.modal').querySelector('.modal-body');
+    const modalInputs=[...modalBody.querySelectorAll('.visit-input')]
+    const modalInputData = {};
+
+    modalInputs.forEach(input => {
+        const key = input.name;
+        const value = input.value;
+        modalInputData[key] = value;
+    });
+
+    sendCards(modalInputData,selectedOption,createVisitModal)
+   
+}
+const sendCards=async (obj,selectedOption,createVisitModal)=>{
+ try{
+    // TODO:'SELECT A DATE ' CAN NOT BE OPTION
+    const {title,description,urgency,fullName,bp,bmi,disease,age,visitDate}= obj;
+   // console.log(title)
+      const response = await fetch("https://ajax.test-danit.com/api/v2/cards", {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+              fullName:fullName,
+              title: title,
+              description: description,
+              doctor: selectedOption,
+              bp: bp,
+              urgency:urgency,
+              disease:disease,
+              visitDate:visitDate,
+              age: age,
+              weight: bmi,
+          })
+      });
+      if(response.ok){
+        // Close the modal when the response is successful
+    createVisitModal.close() 
+    // const newVisit=new Visit('',selectedOption,1,description)
+    // newVisit.render();
+    //displayCards()
+      }
+      const response_1 = await response.json();
+      return console.log(response_1);
+ }
+ catch(err){
+    console.log('Error:',err)
+ }
 }
 
 
