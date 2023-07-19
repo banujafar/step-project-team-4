@@ -14,7 +14,7 @@ module.exports = ({ mode }) => {
     entry: {
       main: [
         path.resolve(__dirname, 'src/js/index.js'), 
-        path.resolve(__dirname, 'src/style.css'),   
+        path.resolve(__dirname, 'src/css/style.css'),   
       ],
     },
     output: {

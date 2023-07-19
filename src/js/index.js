@@ -3,18 +3,19 @@
 
 import Modal from './modal.js';
 import Visit from './visit.js';
-import './../css/style.css'
+import './../css/style.css';
+import { filterForUrgency } from './filter.js';
 import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from './generalDoctorsInfo.js';
-// import CreateVisit from './createVisit.js';
+
 
 const loginBtn = document.querySelector('.btn-login');
 let loginModal = null;
+
 
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 
 loginBtn.addEventListener('click', function () {
-    console.log('clicked')
     if (!loginModal) {
         const content = `
         <input type="email" id="email" placeholder="Email" class="modal-input">
@@ -44,7 +45,6 @@ async function login(userData, loginModal) {
 
         if (response.ok) {
             const token = await response.text();
-            console.log('Token:', token);
             localStorage.setItem('token', token)
             localStorage.setItem('loggedIn', 'true')
             handleLogin();
@@ -82,7 +82,7 @@ function checkFields(loginModal) {
 }
 
 
-async function displayCards() {
+export async function displayCards(filteredVisits) {
     const filterForm = document.querySelector('.form__wrapper');
     filterForm.style.display = 'block';
     try {
@@ -92,23 +92,31 @@ async function displayCards() {
             const noItemMsg = document.querySelector('.no-items-message');
             noItemMsg.style.display = 'block'
         }
-        const visits = data.map((visit) => {
-            const newVisit = new Visit(visit.fullname, visit.target, visit.id, visit.description);
+        let visits = data.map((visit) => {
+            const { fullName, doctorsName, id, ...details } = visit;
+            const newVisit = new Visit(fullName, doctorsName, id, details);
+
             return newVisit
         })
-        console.log(data)
+        filterForUrgency(visits)
 
+        if (filteredVisits) {
+            visits = filteredVisits;
+        }
+
+        visitsWrapper.innerHTML = '';
         visits.forEach((newVisit) => {
             visitsWrapper.appendChild(newVisit.render());
         });
 
-        return visits;
+
     } catch (error) {
         console.error(error);
     }
 
 
 }
+
 
 function handleLogin() {
     const isLoggedIn = localStorage.getItem('loggedIn');
@@ -131,6 +139,7 @@ function handleLogin() {
     }
 
 }
+
 
 async function fetchCards() {
     try {
@@ -204,3 +213,13 @@ function createVisit() {
 
 }
 
+
+export async function deleteVisit(id) {
+    const response = await fetch(`https://ajax.test-danit.com/api/v2/cards/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+    })
+    return response
+}
