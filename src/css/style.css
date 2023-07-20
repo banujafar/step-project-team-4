@@ -203,6 +203,10 @@ button:focus {
   font-size: 16px;
 }
 
+.create-button:disabled{
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .edit-btn {
   margin-bottom: 15px;
 }
