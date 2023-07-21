@@ -60,14 +60,15 @@ export default class Visit {
         const closeButton = this.visitItem.querySelector('.close-item-btn');
         closeButton.addEventListener('click', () => {
             this.onDelete(this.id)
-        });
 
+        });
         if (!this.visitItem) {
             const noItemMsg = document.querySelector('.no-items-message');
             noItemMsg.style.display = 'block';
-            return null
+
         }
         return this.visitItem
+
 
     }
 

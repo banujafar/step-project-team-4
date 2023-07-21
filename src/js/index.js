@@ -85,34 +85,27 @@ export async function displayCards(filteredVisits) {
     filterForm.style.display = 'block';
     try {
         const data = await fetchCards();
-        const visitsWrapper = document.querySelector('.visits');
-        console.log(data)
+        const visitsWrapper = document.querySelector('.visits__cards');
+        console.log(visitsWrapper)
         const noItemMsg = document.querySelector('.no-items-message');
+        console.log(noItemMsg)
         if (!data || data.length === 0) {
-            noItemMsg.style.display = 'block'
+            noItemMsg.style.display='block'
         }
         else {
             noItemMsg.style.display = 'none'
-            const visits = data.map((visit) => {
-                console.log(visit)
-                const newVisit = new Visit(visit.fullName, visit.doctor, visit.id, visit.description);
-                return newVisit
-            })
-            visits.forEach((newVisit) => {
-                visitsWrapper.appendChild(newVisit.render());
-            });
-            //visits.fill(10)
-            return visits;
-        }
-        let visits = data.map((visit) => {
-            const { fullName, doctorsName, id, ...details } = visit;
-            const newVisit = new Visit(fullName, doctorsName, id, details);
+           let visits = data.map((visit) => {
+            const { fullName, doctor, id, ...details } = visit;
+            const newVisit = new Visit(fullName, doctor, id, details);
 
             return newVisit
         })
         filterForUrgency(visits)
 
-        if (filteredVisits) {
+            visits.forEach((newVisit) => {
+                visitsWrapper.appendChild(newVisit.render());
+            });  
+            if (filteredVisits) {
             visits = filteredVisits;
         }
 
@@ -120,6 +113,11 @@ export async function displayCards(filteredVisits) {
         visits.forEach((newVisit) => {
             visitsWrapper.appendChild(newVisit.render());
         });
+            //visits.fill(10)
+            return visits;
+        }
+        
+      
     } catch (error) {
         console.error(error);
     }
@@ -247,9 +245,11 @@ function createVisit() {
 }
 
 const sendCards = async (obj, selectedOption, createVisitModal) => {
+    console.log(selectedOption)
     try {
         // TODO:'SELECT A DATE ' CAN NOT BE OPTION
-        const { title, description, urgency, fullName, bp, bmi, disease, age, visitDate } = obj;
+        console.log(obj)
+        const { fullName,...details } = obj;
         // console.log(title)
         const response = await fetch("https://ajax.test-danit.com/api/v2/cards", {
             method: 'POST',
@@ -259,28 +259,31 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
             },
             body: JSON.stringify({
                 fullName: fullName,
-                title: title,
-                description: description,
+                title: details.title,
+                description: details.description,
                 doctor: selectedOption,
-                bp: bp,
-                urgency: urgency,
-                disease: disease,
-                visitDate: visitDate,
-                age: age,
-                weight: bmi,
+                bp: details.bp,
+                urgency: details.urgency,
+                disease: details.disease,
+                visitDate: details.visitDate,
+                age: details.age,
+                weight: details.bmi,
             })
         });
 
         if (response.ok) {
+            
+            const noItemMsg = document.querySelector('.no-items-message');
+            if(noItemMsg){
+                noItemMsg.style.display = 'none'
+            }
             // Close the modal when the response is successful    
             const response_1 = await response.json();
-            const newVisit = new Visit(fullName, selectedOption, response_1.id, description)
+            const newVisit = new Visit(fullName, selectedOption, response_1.id, details)
             newVisit.render();
-            const visits = document.querySelector('.visits');
+            const visits = document.querySelector('.visits__cards');
             visits.appendChild(newVisit.visitItem)
             createVisitModal.close()
-            const noItemMsg = document.querySelector('.no-items-message');
-            noItemMsg.style.display = 'none'
             return visits
 
         }
@@ -296,8 +299,19 @@ export async function deleteVisit(id) {
     const response = await fetch(`https://ajax.test-danit.com/api/v2/cards/${id}`, {
         method: 'DELETE',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
         },
-    })
+       
+    });
+    if(response.ok){
+       
+        const visits=document.querySelector('.visits')
+        const noItemMsg=visits.querySelector('.no-items-message')
+        const visitsCards=visits.querySelector('.visits__cards')
+        const item=[...visitsCards.querySelectorAll('.item')];
+        console.log(item)
+        noItemMsg.style.display =item.length===0?'block':'none'
+    }
+    console.log(response)
     return response
 }
