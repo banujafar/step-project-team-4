@@ -75,7 +75,7 @@ select {
   box-shadow: none;
 }
 
-.content .visits {
+.visits .visits__cards {
   margin-top: 50px;
   display: flex;
   flex-wrap: wrap;
