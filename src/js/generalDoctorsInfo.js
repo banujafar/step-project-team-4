@@ -83,8 +83,8 @@ export class VisitCardiologist extends VisitDoctors {
         div.innerHTML = `
           <input class="modal-input visit-input" type="text" placeholder="Normal blood pressure" value="${this.bloodPressure}" name="bp"><br>
           <input class="modal-input visit-input" type="number" placeholder="Body Mass Index (BMI)" value="${this.bmi}" name="bmi"><br>
-          <input class="modal-input visit-input" type="number" placeholder="Previously diagnosed cardiovascular diseases" value="${this.age}" name="age"><br>
-         <input class="modal-input visit-input" type="Age" placeholder="Age" value="${this.prevDiseases}" name="disease"><br>
+          <input class="modal-input visit-input" type="number" placeholder="Previously diagnosed cardiovascular diseases" value="${this.age}" name="disease"><br>
+         <input class="modal-input visit-input" type="Age" placeholder="Age" value="${this.prevDiseases}" name="age"><br>
         `;
 
         const inputbloodPress = div.querySelector(

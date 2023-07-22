@@ -84,8 +84,12 @@ The following technologies were used in the development of this project:
 
 ### Aydan Yunus
  - Login
- - Create visit
-
-### Banu Jafarli
- - Filtering
  - Modal view
+ - Filtering
+ - Delete Card
+ - Show More
+### Banu Jafarli
+ - Create visit
+ - Search
+ - Edit Card
+
