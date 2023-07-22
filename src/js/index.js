@@ -10,7 +10,8 @@ import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from '.
 
 const loginBtn = document.querySelector('.btn-login');
 let loginModal = null;
-const token = '811e6592-d984-4e22-8fb9-b7cc6fdb5bd9'
+const token = '811e6592-d984-4e22-8fb9-b7cc6fdb5bd9';
+let cachedData = null;
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 
@@ -79,7 +80,14 @@ function checkFields(loginModal) {
         }
     })
 }
+function visitsCard(data){
+return data.map((visit) => {
+        const { fullName, doctor, id, ...details } = visit;
+        const newVisit = new Visit(fullName, doctor, id, details);
 
+        return newVisit
+})
+}
 export async function displayCards(filteredVisits) {
     const filterForm = document.querySelector('.form__wrapper');
     filterForm.style.display = 'block';
@@ -89,18 +97,14 @@ export async function displayCards(filteredVisits) {
         console.log(visitsWrapper)
         const noItemMsg = document.querySelector('.no-items-message');
         console.log(noItemMsg)
-        if (!data || data.length === 0) {
+        if (!data || data.length === 0 ) {
             noItemMsg.style.display='block'
         }
         else {
             noItemMsg.style.display = 'none'
-           let visits = data.map((visit) => {
-            const { fullName, doctor, id, ...details } = visit;
-            const newVisit = new Visit(fullName, doctor, id, details);
-
-            return newVisit
-        })
-        filterForUrgency(visits)
+           let visits = visitsCard(data)
+           console.log(visits)
+           filterForUrgency(visits)
 
             visits.forEach((newVisit) => {
                 visitsWrapper.appendChild(newVisit.render());
@@ -108,12 +112,16 @@ export async function displayCards(filteredVisits) {
             if (filteredVisits) {
             visits = filteredVisits;
         }
-
-        visitsWrapper.innerHTML = '';
-        visits.forEach((newVisit) => {
-            visitsWrapper.appendChild(newVisit.render());
-        });
-            //visits.fill(10)
+        visitsWrapper.innerHTML='';
+        if (visits.length === 0) {
+            noItemMsg.textContent='No Items found'
+            noItemMsg.style.display='block'
+           
+          } else {
+            visits.forEach((newVisit) => {
+              visitsWrapper.appendChild(newVisit.render());
+            });
+          }
             return visits;
         }
         
@@ -151,6 +159,9 @@ function handleLogin() {
 
 async function fetchCards() {
     try {
+        if (cachedData) {
+            return cachedData;
+          }
         const response = await fetch("https://ajax.test-danit.com/api/v2/cards", {
             method: 'GET',
             headers: {
@@ -159,9 +170,8 @@ async function fetchCards() {
             }
         })
         const data = await response.json();
-        console.log(data)
-
-        return data
+        cachedData = data;
+        return cachedData
 
     } catch (error) {
         console.error(error)
@@ -272,7 +282,7 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
         });
 
         if (response.ok) {
-            
+            cachedData=null;
             const noItemMsg = document.querySelector('.no-items-message');
             if(noItemMsg){
                 noItemMsg.style.display = 'none'
@@ -315,3 +325,26 @@ export async function deleteVisit(id) {
     console.log(response)
     return response
 }
+let searchTimeout;
+
+const searchInput=document.querySelector('input[type="search"]');
+const searchBtn=document.querySelector('.btn-search');
+
+searchInput.addEventListener('input',async(e)=>{
+    //clearTimeout(searchTimeout);
+    searchCards()
+})
+
+const searchCards=async()=>{
+    const searchedItem=searchInput.value.toLowerCase()
+        const data = await fetchCards();
+        const visits = visitsCard(data);
+        const filteredVisits = visits.filter((visit) =>
+          visit.details.title.toLowerCase().includes(searchedItem)|| visit.details.description.toLowerCase().includes(searchedItem))
+        displayCards(filteredVisits);
+      
+}
+searchBtn.addEventListener('click',(e)=>{
+    e.preventDefault();
+    searchCards()
+})
