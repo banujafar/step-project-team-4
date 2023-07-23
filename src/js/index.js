@@ -309,6 +309,7 @@ export async function deleteVisit(id) {
 
     });
     if (response.ok) {
+        cachedData = null;
         const visits = document.querySelector('.visits')
         const noItemMsg = visits.querySelector('.no-items-message')
         const visitsCards = visits.querySelector('.visits__cards')
@@ -322,7 +323,7 @@ export async function deleteVisit(id) {
 //Search for title/description
 const searchInput = document.querySelector('input[type="search"]');
 const searchBtn = document.querySelector('.btn-search');
-
+//TODO Fix when trying to delete founded element it should be deleted from ui
 searchInput.addEventListener('input', async (e) => {
     searchCards()
 })
@@ -354,6 +355,7 @@ export async function sendEditedDataToServer(editedData, editedId) {
         });
 
         if (response.ok) {
+            cachedData = null;
             return response
         }
 
