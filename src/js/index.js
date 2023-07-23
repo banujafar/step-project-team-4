@@ -10,8 +10,8 @@ import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from '.
 
 const loginBtn = document.querySelector('.btn-login');
 let loginModal = null;
-const token = '811e6592-d984-4e22-8fb9-b7cc6fdb5bd9';
 let cachedData = null;
+const token = '811e6592-d984-4e22-8fb9-b7cc6fdb5bd9';
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 
@@ -80,13 +80,13 @@ function checkFields(loginModal) {
         }
     })
 }
-function visitsCard(data){
-return data.map((visit) => {
+
+function visitsCard(data) {
+    return data.map((visit) => {
         const { fullName, doctor, id, ...details } = visit;
         const newVisit = new Visit(fullName, doctor, id, details);
-
         return newVisit
-})
+    })
 }
 export async function displayCards(filteredVisits) {
     const filterForm = document.querySelector('.form__wrapper');
@@ -97,35 +97,35 @@ export async function displayCards(filteredVisits) {
         console.log(visitsWrapper)
         const noItemMsg = document.querySelector('.no-items-message');
         console.log(noItemMsg)
-        if (!data || data.length === 0 ) {
-            noItemMsg.style.display='block'
+        if (!data || data.length === 0) {
+            noItemMsg.style.display = 'block'
         }
         else {
             noItemMsg.style.display = 'none'
-           let visits = visitsCard(data)
-           console.log(visits)
-           filterForUrgency(visits)
+            let visits = visitsCard(data)
+            console.log(visits)
+            filterForUrgency(visits)
 
             visits.forEach((newVisit) => {
                 visitsWrapper.appendChild(newVisit.render());
-            });  
-            if (filteredVisits) {
-            visits = filteredVisits;
-        }
-        visitsWrapper.innerHTML='';
-        if (visits.length === 0) {
-            noItemMsg.textContent='No Items found'
-            noItemMsg.style.display='block'
-           
-          } else {
-            visits.forEach((newVisit) => {
-              visitsWrapper.appendChild(newVisit.render());
             });
-          }
+            if (filteredVisits) {
+                visits = filteredVisits;
+            }
+            visitsWrapper.innerHTML = '';
+            if (visits.length === 0) {
+                noItemMsg.textContent = 'No Items found'
+                noItemMsg.style.display = 'block'
+
+            } else {
+                visits.forEach((newVisit) => {
+                    visitsWrapper.appendChild(newVisit.render());
+                });
+            }
             return visits;
         }
-        
-      
+
+
     } catch (error) {
         console.error(error);
     }
@@ -161,7 +161,7 @@ async function fetchCards() {
     try {
         if (cachedData) {
             return cachedData;
-          }
+        }
         const response = await fetch("https://ajax.test-danit.com/api/v2/cards", {
             method: 'GET',
             headers: {
@@ -182,6 +182,7 @@ async function fetchCards() {
 // Create Visit section
 
 const createVisitBtn = document.querySelector('.btn-create-visit');
+console.log(createVisitBtn)
 createVisitBtn.addEventListener('click', createVisit)
 
 function createVisit() {
@@ -200,11 +201,10 @@ function createVisit() {
     createVisitModal.render(content);
     const modalBody = createVisitModal.modal.querySelector('.modal-body');
     const createButton = modalBody.querySelector('.create-button');
-    createButton.disabled=true
+    createButton.disabled = true
     // Event delegation to handle the change event on the select element
     modalBody.addEventListener('change', (event) => {
         const select = event.target;
-        console.log(select)
         if (select.id === 'create-visit') {
             // Clear the existing content in the modal body
             const div = modalBody.querySelector('.doctors-info');
@@ -215,7 +215,7 @@ function createVisit() {
 
             const selectedOption = select.options[select.selectedIndex].value;
             if (selectedOption !== 'Select a doctor') {
-                 createButton.disabled=false;
+                createButton.disabled = false;
                 const doctors = new VisitDoctors('', '', '', '', modalBody);
                 doctors.renderGeneralInfo();
                 if (selectedOption === 'Cardiologist') {
@@ -248,19 +248,14 @@ function createVisit() {
             const value = input.value;
             modalInputData[key] = value;
         });
-       console.log(selectedOption.value)
         sendCards(modalInputData, selectedOption.value, createVisitModal)
     })
 
 }
 
 const sendCards = async (obj, selectedOption, createVisitModal) => {
-    console.log(selectedOption)
     try {
-        // TODO:'SELECT A DATE ' CAN NOT BE OPTION
-        console.log(obj)
-        const { fullName,...details } = obj;
-        // console.log(title)
+        const { fullName, ...details } = obj;
         const response = await fetch("https://ajax.test-danit.com/api/v2/cards", {
             method: 'POST',
             headers: {
@@ -282,14 +277,14 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
         });
 
         if (response.ok) {
-            cachedData=null;
+            cachedData = null;
             const noItemMsg = document.querySelector('.no-items-message');
-            if(noItemMsg){
+            if (noItemMsg) {
                 noItemMsg.style.display = 'none'
             }
             // Close the modal when the response is successful    
-            const response_1 = await response.json();
-            const newVisit = new Visit(fullName, selectedOption, response_1.id, details)
+            const data = await response.json();
+            const newVisit = new Visit(fullName, selectedOption, data.id, details)
             newVisit.render();
             const visits = document.querySelector('.visits__cards');
             visits.appendChild(newVisit.visitItem)
@@ -304,47 +299,68 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
     }
 }
 
-
+//Delete visit
 export async function deleteVisit(id) {
     const response = await fetch(`https://ajax.test-danit.com/api/v2/cards/${id}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
         },
-       
+
     });
-    if(response.ok){
-       
-        const visits=document.querySelector('.visits')
-        const noItemMsg=visits.querySelector('.no-items-message')
-        const visitsCards=visits.querySelector('.visits__cards')
-        const item=[...visitsCards.querySelectorAll('.item')];
+    if (response.ok) {
+        const visits = document.querySelector('.visits')
+        const noItemMsg = visits.querySelector('.no-items-message')
+        const visitsCards = visits.querySelector('.visits__cards')
+        const item = [...visitsCards.querySelectorAll('.item')];
         console.log(item)
-        noItemMsg.style.display =item.length===0?'block':'none'
+        noItemMsg.style.display = item.length === 0 ? 'block' : 'none'
     }
-    console.log(response)
     return response
 }
-let searchTimeout;
 
-const searchInput=document.querySelector('input[type="search"]');
-const searchBtn=document.querySelector('.btn-search');
+//Search for title/description
+const searchInput = document.querySelector('input[type="search"]');
+const searchBtn = document.querySelector('.btn-search');
 
-searchInput.addEventListener('input',async(e)=>{
-    //clearTimeout(searchTimeout);
+searchInput.addEventListener('input', async (e) => {
     searchCards()
 })
 
-const searchCards=async()=>{
-    const searchedItem=searchInput.value.toLowerCase()
-        const data = await fetchCards();
-        const visits = visitsCard(data);
-        const filteredVisits = visits.filter((visit) =>
-          visit.details.title.toLowerCase().includes(searchedItem)|| visit.details.description.toLowerCase().includes(searchedItem))
-        displayCards(filteredVisits);
-      
+const searchCards = async () => {
+    const searchedItem = searchInput.value.toLowerCase()
+    const data = await fetchCards();
+    const visits = visitsCard(data);
+    const filteredVisits = visits.filter((visit) =>
+        visit.details.title.toLowerCase().includes(searchedItem) || visit.details.description.toLowerCase().includes(searchedItem))
+    displayCards(filteredVisits);
+
 }
-searchBtn.addEventListener('click',(e)=>{
+searchBtn.addEventListener('click', (e) => {
     e.preventDefault();
     searchCards()
 })
+
+// Send edited Cards to the Server
+export async function sendEditedDataToServer(editedData, editedId) {
+    try {
+        const response = await fetch(`https://ajax.test-danit.com/api/v2/cards/${editedId}`, {
+            method: 'PUT', // Use 'PUT' method to update the existing data on the server
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(editedData),
+        });
+
+        if (response.ok) {
+            return response
+        }
+
+        // Optionally, you can handle the response from the server here, if needed.
+    } catch (error) {
+        console.error('Error updating data on the server:', error);
+        // Handle error scenarios, e.g., show an error message to the user.
+    }
+}
+
