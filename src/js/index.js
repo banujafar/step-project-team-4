@@ -217,18 +217,18 @@ function createVisit() {
             const selectedOption = select.options[select.selectedIndex].value;
             if (selectedOption !== 'Select a doctor') {
                 createButton.disabled = false;
-                const doctors = new VisitDoctors('', '', '', '', modalBody);
+                const doctors = new VisitDoctors('', '', '', '','', modalBody);
                 doctors.renderGeneralInfo();
                 if (selectedOption === 'Cardiologist') {
-                    const cardiologist = new VisitCardiologist('', '', '', '', '', '', '', '', modalBody);
+                    const cardiologist = new VisitCardiologist('', '', '', '', '', '', '', '','', modalBody);
                     cardiologist.renderCardiologistInfo();
                 }
                 if (selectedOption === 'Dentist') {
-                    const dentist = new VisitDentist('', '', '', '', '', modalBody);
+                    const dentist = new VisitDentist('', '', '', '', '','', modalBody);
                     dentist.renderDentistInfo();
                 }
                 if (selectedOption === 'Therapist') {
-                    const therapist = new VisitTherapist('', '', '', '', '', modalBody);
+                    const therapist = new VisitTherapist('', '', '', '', '','', modalBody);
                     therapist.renderTherapistInfo();
                 }
             }
@@ -273,6 +273,7 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
                 disease: details.disease,
                 visitDate: details.visitDate,
                 age: details.age,
+                status:details.status,
                 weight: details.bmi,
             })
         });
