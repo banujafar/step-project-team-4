@@ -1,6 +1,7 @@
 // your@email.com password ---> with data
 // fisojej763@iturchia.com 123server ---> without data
 
+
 import Modal from './modal.js';
 import Visit from './visit.js';
 import './../css/style.css';
@@ -11,7 +12,6 @@ import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from '.
 const loginBtn = document.querySelector('.btn-login');
 let loginModal = null;
 let cachedData = null;
-const token = '811e6592-d984-4e22-8fb9-b7cc6fdb5bd9';
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 
@@ -134,6 +134,7 @@ export async function displayCards(filteredVisits) {
 }
 
 
+
 function handleLogin() {
     const isLoggedIn = localStorage.getItem('loggedIn');
     const noItemMsg = document.querySelector('.no-items-message');
@@ -166,7 +167,7 @@ async function fetchCards() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
             }
         })
         const data = await response.json();
@@ -260,7 +261,7 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
                 fullName: fullName,
@@ -304,7 +305,7 @@ export async function deleteVisit(id) {
     const response = await fetch(`https://ajax.test-danit.com/api/v2/cards/${id}`, {
         method: 'DELETE',
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
 
     });
@@ -349,7 +350,7 @@ export async function sendEditedDataToServer(editedData, editedId) {
             method: 'PUT', // Use 'PUT' method to update the existing data on the server
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
             },
             body: JSON.stringify(editedData),
         });
