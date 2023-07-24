@@ -1,11 +1,11 @@
-// your@email.com password ---> with data
-// fisojej763@iturchia.com 123server ---> without data
+// email: fisojej763@iturchia.com 
+// password: 123server 
 
 
 import Modal from './modal.js';
 import Visit from './visit.js';
 import './../css/style.css';
-import { filterForUrgency } from './filter.js';
+import { filterForUrgency, filterForStatus, applyFilters } from './filter.js';
 import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from './generalDoctorsInfo.js';
 
 
@@ -105,6 +105,8 @@ export async function displayCards(filteredVisits) {
             let visits = visitsCard(data)
             console.log(visits)
             filterForUrgency(visits)
+            filterForStatus(visits)
+
 
             visits.forEach((newVisit) => {
                 visitsWrapper.appendChild(newVisit.render());
@@ -153,6 +155,7 @@ function handleLogin() {
     } else {
         const loginBtn = document.querySelector('.btn-login');
         loginBtn.style.display = 'block';
+        loginModal = null;
     }
 
 }
@@ -184,73 +187,96 @@ async function fetchCards() {
 
 const createVisitBtn = document.querySelector('.btn-create-visit');
 console.log(createVisitBtn)
+let createVisitModal = null;
 createVisitBtn.addEventListener('click', createVisit)
 
 function createVisit() {
-    const content = `
-    <select id="create-visit" class="modal-input" name="Select a doctor">
-        <option >Select a doctor</option>
-        <option value="Cardiologist">Cardiologist</option>
-        <option value="Dentist">Dentist</option>
-        <option value="Therapist">Therapist</option>
-    </select>
-    <div class='doctors-info'></div>
-    <button class='create-button btn btn-create-visit'>Create</button>
-    `;
-
-    const createVisitModal = new Modal('Create Visit');
-    createVisitModal.render(content);
-    const modalBody = createVisitModal.modal.querySelector('.modal-body');
-    const createButton = modalBody.querySelector('.create-button');
-    createButton.disabled = true
-    // Event delegation to handle the change event on the select element
-    modalBody.addEventListener('change', (event) => {
-        const select = event.target;
-        if (select.id === 'create-visit') {
-            // Clear the existing content in the modal body
-            const div = modalBody.querySelector('.doctors-info');
-
-            if (div) {
-                div.innerHTML = '';
-            }
-
-            const selectedOption = select.options[select.selectedIndex].value;
-            if (selectedOption !== 'Select a doctor') {
-                createButton.disabled = false;
-                const doctors = new VisitDoctors('', '', '', '','', modalBody);
-                doctors.renderGeneralInfo();
-                if (selectedOption === 'Cardiologist') {
-                    const cardiologist = new VisitCardiologist('', '', '', '', '', '', '', '','', modalBody);
-                    cardiologist.renderCardiologistInfo();
+    if (!createVisitModal) {
+        const content = `
+        <select id="create-visit" class="modal-input" name="Select a doctor">
+            <option >Select a doctor</option>
+            <option value="Cardiologist">Cardiologist</option>
+            <option value="Dentist">Dentist</option>
+            <option value="Therapist">Therapist</option>
+        </select>
+        <div class='doctors-info'></div>
+        <button class='create-button btn btn-create-visit'>Create</button>
+        `;
+    
+        createVisitModal = new Modal('Create Visit');
+        createVisitModal.render(content);
+        const modalBody = createVisitModal.modal.querySelector('.modal-body');
+        const createButton = modalBody.querySelector('.create-button');
+        createButton.disabled = true
+        // Event delegation to handle the change event on the select element
+        modalBody.addEventListener('change', (event) => {
+            const select = event.target;
+            if (select.id === 'create-visit') {
+                // Clear the existing content in the modal body
+                const div = modalBody.querySelector('.doctors-info');
+    
+                if (div) {
+                    div.innerHTML = '';
                 }
-                if (selectedOption === 'Dentist') {
-                    const dentist = new VisitDentist('', '', '', '', '','', modalBody);
-                    dentist.renderDentistInfo();
+    
+                const selectedOption = select.options[select.selectedIndex].value;
+                if (selectedOption !== 'Select a doctor') {
+                    createButton.disabled = false;
+                    const doctors = new VisitDoctors('', '', '', '', '', modalBody);
+                    doctors.renderGeneralInfo();
+                    if (selectedOption === 'Cardiologist') {
+                        const cardiologist = new VisitCardiologist('', '', '', '', '', '', '', '', '', modalBody);
+                        cardiologist.renderCardiologistInfo();
+                    }
+                    if (selectedOption === 'Dentist') {
+                        const dentist = new VisitDentist('', '', '', '', '', '', modalBody);
+                        dentist.renderDentistInfo();
+                    }
+                    if (selectedOption === 'Therapist') {
+                        const therapist = new VisitTherapist('', '', '', '', '', '', modalBody);
+                        therapist.renderTherapistInfo();
+                    }
                 }
-                if (selectedOption === 'Therapist') {
-                    const therapist = new VisitTherapist('', '', '', '', '','', modalBody);
-                    therapist.renderTherapistInfo();
+    
+                else {
+                    createButton.disabled = true;
                 }
             }
-
-            else {
-                createButton.disabled = true;
-            }
-        }
-    })
-
-    createButton.addEventListener('click', () => {
-        const modalInputs = [...modalBody.querySelectorAll('.visit-input')]
-        const selectedOption = modalBody.querySelector('.modal-input')
-        const modalInputData = {};
-
-        modalInputs.forEach(input => {
-            const key = input.name;
-            const value = input.value;
-            modalInputData[key] = value;
-        });
-        sendCards(modalInputData, selectedOption.value, createVisitModal)
-    })
+        })
+    
+        createButton.addEventListener('click', async () => {
+            createVisitModal.close();
+            createVisitModal = null;
+            const modalInputs = [...modalBody.querySelectorAll('.visit-input')];
+            const selectedOption = modalBody.querySelector('.modal-input');
+    
+            const modalInputData = {};
+            modalInputs.forEach(input => {
+                const key = input.name;
+                const value = input.value;
+                modalInputData[key] = value;
+            });
+    
+            const fullName = modalInputData.fullName;
+            const doctor = selectedOption.value;
+            const id = ''; 
+            const details = modalInputData;
+            const newVisit = new Visit(fullName, doctor, id, details);
+    
+            const visitsWrapper = document.querySelector('.visits__cards');
+            const visits = visitsCard(await fetchCards());
+            visits.push(newVisit);
+    
+            applyFilters(visits);
+            await sendCards(modalInputData, selectedOption.value, createVisitModal);
+            displayCards();
+    
+    
+        })
+    } else {
+        createVisitModal.show();
+    }
+   
 
 }
 
@@ -273,7 +299,7 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
                 disease: details.disease,
                 visitDate: details.visitDate,
                 age: details.age,
-                status:details.status,
+                status: details.status,
                 weight: details.bmi,
             })
         });
@@ -312,12 +338,23 @@ export async function deleteVisit(id) {
     });
     if (response.ok) {
         cachedData = null;
-        const visits = document.querySelector('.visits')
-        const noItemMsg = visits.querySelector('.no-items-message')
-        const visitsCards = visits.querySelector('.visits__cards')
-        const item = [...visitsCards.querySelectorAll('.item')];
-        console.log(item)
-        noItemMsg.style.display = item.length === 0 ? 'block' : 'none'
+        const visitsWrapper = document.querySelector('.visits__cards');
+        const data = await fetchCards();
+        const visits = visitsCard(data);
+
+        const filteredVisits = applyFilters(visits);
+
+        visitsWrapper.innerHTML = '';
+
+        if (filteredVisits.length === 0) {
+            const noItemMsg = document.querySelector('.no-items-message');
+            noItemMsg.textContent = 'No Items found';
+            noItemMsg.style.display = 'block';
+        } else {
+            filteredVisits.forEach((newVisit) => {
+                visitsWrapper.appendChild(newVisit.render());
+            });
+        }
     }
     return response
 }
