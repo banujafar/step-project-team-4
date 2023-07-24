@@ -121,6 +121,7 @@ export default class Visit {
           commonData.description,
           commonData.urgency,
           commonData.fullName,
+          commonData.status,
           commonData.modalBody
         );
         doctors.renderGeneralInfo();
@@ -135,6 +136,7 @@ export default class Visit {
             commonData.description,
             commonData.urgency,
             commonData.fullName,
+            commonData.status,
             commonData.modalBody
           );
           cardiologist.renderCardiologistInfo();
@@ -145,6 +147,7 @@ export default class Visit {
             commonData.description,
             commonData.urgency,
             commonData.fullName,
+            commonData.status,
             commonData.modalBody
           );
           dentist.renderDentistInfo();
@@ -155,6 +158,7 @@ export default class Visit {
             commonData.description,
             commonData.urgency,
             commonData.fullName,
+            commonData.status,
             commonData.modalBody
           );
           therapist.renderTherapistInfo();

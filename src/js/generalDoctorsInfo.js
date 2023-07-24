@@ -4,12 +4,14 @@ export class VisitDoctors {
         briefDescription,
         urgencyLevel,
         fullName,
+        status,
         modalBody
     ) {
         this.visitPurpose = visitPurpose;
         this.briefDescription = briefDescription;
         this.urgencyLevel = urgencyLevel;
         this.fullName = fullName;
+        this.status=status;
         this.modalBody = modalBody;
     }
 
@@ -38,6 +40,12 @@ export class VisitDoctors {
         </select><br>
        <input class="modal-input visit-input" type="text" placeholder="Full name" value="${this.fullName
             }" name="fullName"><br>
+        <select class="modal-input visit-input" name="status">
+          <option value="open" ${this.status === "open" ? "selected" : ""
+            }>Open</option>
+          <option value="done" ${this.status === "done" ? "selected" : ""
+            }>Done</option>
+        </select><br>
       `;
 
         const inputPurpose = div.querySelector(
@@ -46,13 +54,15 @@ export class VisitDoctors {
         const inputDescription = div.querySelector(
             'input[placeholder="Brief visit description"]'
         );
-        const selectUrgency = div.querySelector("select");
+        const selectUrgency = div.querySelector('select[name="urgency"]');
         const inputFullName = div.querySelector('input[placeholder="Full name"]');
-        const doctorsInfo = this.modalBody.querySelector('.doctors-info')
+        const inputStatus=div.querySelector('select[name="status"]');
+        const doctorsInfo = this.modalBody.querySelector('.doctors-info');
         this.handleInput(inputPurpose, "visitPurpose");
         this.handleInput(inputDescription, "briefDescription");
         this.handleInput(selectUrgency, "urgencyLevel");
         this.handleInput(inputFullName, "fullName");
+        this.handleInput(inputStatus,'status')
         doctorsInfo.appendChild(div)
         this.modalBody.appendChild(doctorsInfo);
 
@@ -70,9 +80,10 @@ export class VisitCardiologist extends VisitDoctors {
         briefDescription,
         urgencyLevel,
         fullName,
+        status,
         modalBody
     ) {
-        super(visitPurpose, briefDescription, urgencyLevel, fullName, modalBody);
+        super(visitPurpose, briefDescription, urgencyLevel, fullName,status, modalBody);
         this.bloodPressure = bloodPressure;
         this.bmi = bmi;
         this.prevDiseases = prevDiseases;
@@ -117,8 +128,9 @@ export class VisitDentist extends VisitDoctors{
         briefDescription,
         urgencyLevel,
         fullName,
+        status,
         modalBody){
-        super(visitPurpose, briefDescription, urgencyLevel, fullName, modalBody)
+        super(visitPurpose, briefDescription, urgencyLevel, fullName,status, modalBody)
         this.visitDate=visitDate
     }
     renderDentistInfo(){
@@ -142,8 +154,9 @@ export class VisitTherapist extends VisitDoctors{
         briefDescription,
         urgencyLevel,
         fullName,
+        status,
         modalBody){
-        super(visitPurpose, briefDescription, urgencyLevel, fullName, modalBody)
+        super(visitPurpose, briefDescription, urgencyLevel, fullName,status, modalBody)
         this.age=age
     }
     renderTherapistInfo(){
