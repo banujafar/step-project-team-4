@@ -207,6 +207,7 @@ function createVisit() {
         createVisitModal.render(content);
         const modalBody = createVisitModal.modal.querySelector('.modal-body');
         const createButton = modalBody.querySelector('.create-button');
+        // Event delegation to handle the change event on the select element
         createButton.disabled = true;
         modalBody.addEventListener('change', (event) => {
             const select = event.target;
@@ -393,6 +394,9 @@ export async function sendEditedDataToServer(editedData, editedId) {
 
         if (response.ok) {
             cachedData = null;
+            const data = await fetchCards();
+            const visits = visitsCard(data);
+            applyFilters(visits);
             return response
         }
     } catch (error) {
