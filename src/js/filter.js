@@ -14,7 +14,7 @@ function filterForUrgency(visits) {
         const value = e.target.value;
 
         urgencyOption = value;
-        applyFilters(visits);
+        applyFilters(visits,displayCards);
     });
 }
 
@@ -23,11 +23,11 @@ function filterForStatus(visits) {
         const value = e.target.value;
 
         statusOption = value;
-        applyFilters(visits);
+        applyFilters(visits,displayCards);
     });
 }
 
-function applyFilters(visits) {
+function applyFilters(visits,callback) {
 
     if (urgencyOption !== 'all' && statusOption !== 'all') {
         filteredVisits = visits.filter(
@@ -43,8 +43,8 @@ function applyFilters(visits) {
     else {
         filteredVisits = visits;
     }
-
-    displayCards(filteredVisits)
+    callback(filteredVisits);
+    return filteredVisits
 }
 
 export { filterForUrgency, filterForStatus, applyFilters }
