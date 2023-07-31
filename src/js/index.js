@@ -12,6 +12,7 @@ import { VisitDoctors, VisitDentist, VisitCardiologist, VisitTherapist } from '.
 const loginBtn = document.querySelector('.btn-login');
 let loginModal = null;
 let cachedData = null;
+let searchTimeout;
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 
@@ -94,23 +95,19 @@ export async function displayCards(filteredVisits) {
     try {
         const data = await fetchCards();
         const visitsWrapper = document.querySelector('.visits__cards');
-        console.log(visitsWrapper)
         const noItemMsg = document.querySelector('.no-items-message');
-        console.log(noItemMsg)
+        console.log(data)
         if (!data || data.length === 0) {
             noItemMsg.style.display = 'block'
         }
         else {
             noItemMsg.style.display = 'none'
             let visits = visitsCard(data)
-            console.log(visits)
             filterForUrgency(visits)
             filterForStatus(visits)
-
-
-            visits.forEach((newVisit) => {
-                visitsWrapper.appendChild(newVisit.render());
-            });
+            const urgencyLevel=document.querySelector('#urgency');
+            const status=document.querySelector('#status');
+            
             if (filteredVisits) {
                 visits = filteredVisits;
             }
@@ -121,7 +118,20 @@ export async function displayCards(filteredVisits) {
 
             } else {
                 visits.forEach((newVisit) => {
-                    visitsWrapper.appendChild(newVisit.render());
+                    if (
+                        status.value !== 'all' &&
+                        urgencyLevel.value !== 'all' &&
+                        newVisit.details.status === status.value &&
+                        newVisit.details.urgency === urgencyLevel.value
+                    ) {
+                        visitsWrapper.appendChild(newVisit.render());
+                    } else if (status.value === 'all' && urgencyLevel.value !== 'all' && newVisit.details.urgency === urgencyLevel.value) {
+                        visitsWrapper.appendChild(newVisit.render());
+                    } else if (status.value !== 'all' && urgencyLevel.value === 'all' && newVisit.details.status === status.value) {
+                        visitsWrapper.appendChild(newVisit.render());
+                    } else if (status.value === 'all' && urgencyLevel.value === 'all') {
+                        visitsWrapper.appendChild(newVisit.render());
+                    }
                 });
             }
             return visits;
@@ -186,12 +196,11 @@ async function fetchCards() {
 // Create Visit section
 
 const createVisitBtn = document.querySelector('.btn-create-visit');
-console.log(createVisitBtn)
 let createVisitModal = null;
 createVisitBtn.addEventListener('click', createVisit)
 
 function createVisit() {
-    if (!createVisitModal) {
+    // if (!createVisitModal) {
         const content = `
         <select id="create-visit" class="modal-input" name="Select a doctor">
             <option >Select a doctor</option>
@@ -246,7 +255,7 @@ function createVisit() {
     
         createButton.addEventListener('click', async () => {
             createVisitModal.close();
-            createVisitModal = null;
+            
             const modalInputs = [...modalBody.querySelectorAll('.visit-input')];
             const selectedOption = modalBody.querySelector('.modal-input');
     
@@ -262,20 +271,23 @@ function createVisit() {
             const id = ''; 
             const details = modalInputData;
             const newVisit = new Visit(fullName, doctor, id, details);
-    
-            const visitsWrapper = document.querySelector('.visits__cards');
             const visits = visitsCard(await fetchCards());
-            visits.push(newVisit);
-    
-            applyFilters(visits);
+            const filteredVisits=applyFilters(visits,displayCards)
+            filteredVisits.push(newVisit); 
+            // if(newVisit.details.status===status.value&&newVisit.details.urgency===urgencyLevel.value){
+            //     visits.push(newVisit); 
+             
+            // }
+
             await sendCards(modalInputData, selectedOption.value, createVisitModal);
-            displayCards();
+           
+            
     
     
         })
-    } else {
-        createVisitModal.show();
-    }
+    // } else {
+    //     createVisitModal.show();
+    // }
    
 
 }
@@ -310,13 +322,22 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
             if (noItemMsg) {
                 noItemMsg.style.display = 'none'
             }
-            const data = await response.json();
-            const newVisit = new Visit(fullName, selectedOption, data.id, details)
-            newVisit.render();
-            const visits = document.querySelector('.visits__cards');
-            visits.appendChild(newVisit.visitItem)
-            createVisitModal.close()
-            return visits
+            const createdVisit = await response.json();
+            const newVisit = new Visit(fullName, selectedOption, createdVisit.id, details)
+            const data = await fetchCards();
+            const visits = visitsCard(data);
+            const filteredVisits=applyFilters(visits,displayCards)
+            const visitsWrapper = document.querySelector('.visits__cards');
+
+            visitsWrapper.innerHTML=''
+             filteredVisits.forEach((newVisit) => {
+                visitsWrapper.appendChild(newVisit.render())
+            });
+            if (visitsWrapper.innerHTML==='') {
+                const noItemMsg = document.querySelector('.no-items-message');
+                noItemMsg.textContent = 'No Items found';
+                noItemMsg.style.display = 'block';
+            }
 
         }
 
@@ -341,19 +362,14 @@ export async function deleteVisit(id) {
         const data = await fetchCards();
         const visits = visitsCard(data);
 
-        const filteredVisits = applyFilters(visits);
-
+       const filteredVisits=applyFilters(visits,displayCards)
         visitsWrapper.innerHTML = '';
 
         if (filteredVisits.length === 0) {
             const noItemMsg = document.querySelector('.no-items-message');
             noItemMsg.textContent = 'No Items found';
             noItemMsg.style.display = 'block';
-        } else {
-            filteredVisits.forEach((newVisit) => {
-                visitsWrapper.appendChild(newVisit.render());
-            });
-        }
+        } 
     }
     return response
 }
@@ -361,23 +377,29 @@ export async function deleteVisit(id) {
 //Search for title/description
 const searchInput = document.querySelector('input[type="search"]');
 const searchBtn = document.querySelector('.btn-search');
-//TODO Fix when trying to delete founded element it should be deleted from ui
+
 searchInput.addEventListener('input', async (e) => {
-    searchCards()
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(async () => {
+        await searchCards();
+},300)
 })
 
 const searchCards = async () => {
-    const searchedItem = searchInput.value.toLowerCase()
+    const searchedItem = searchInput.value.toLowerCase().trim()
     const data = await fetchCards();
     const visits = visitsCard(data);
-    const filteredVisits = visits.filter((visit) =>
-        visit.details.title.toLowerCase().includes(searchedItem) || visit.details.description.toLowerCase().includes(searchedItem))
-    displayCards(filteredVisits);
-
+   const filteredVisits=applyFilters(visits,displayCards)
+    const searchedResults = filteredVisits.filter((visit) =>
+        visit.details.title.toLowerCase().includes(searchedItem) || visit.details.description.toLowerCase().includes(searchedItem))  
+        displayCards(searchedResults)
 }
 searchBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    searchCards()
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(async () => {
+        await searchCards();
+},300)
 })
 
 // Send edited Cards to the Server
@@ -396,8 +418,20 @@ export async function sendEditedDataToServer(editedData, editedId) {
             cachedData = null;
             const data = await fetchCards();
             const visits = visitsCard(data);
-            applyFilters(visits);
-            return response
+            const filteredVisits=applyFilters(visits,displayCards)
+            const visitsWrapper = document.querySelector('.visits__cards');
+
+            visitsWrapper.innerHTML=''
+             filteredVisits.forEach((newVisit) => {
+                visitsWrapper.appendChild(newVisit.render())
+            });
+            if (visitsWrapper.innerHTML==='') {
+                const noItemMsg = document.querySelector('.no-items-message');
+                noItemMsg.textContent = 'No Items found';
+                noItemMsg.style.display = 'block';
+            }
+            return response;
+        
         }
     } catch (error) {
         console.error('Error updating data on the server:', error);

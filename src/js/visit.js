@@ -185,7 +185,7 @@ export default class Visit {
       this.doctorsName = modalInputData.doctor;
       const userInfo = this.visitItem.querySelector(".user-info");
       const doctorInfo = this.visitItem.querySelector(".doctor-info");
-      userInfo.textContent = `Patient's Name: ${modalInputData.fullName}`;
+      userInfo.textContent = `Patient's Name: ${this.fullName}`;
       doctorInfo.textContent = `Doctor's Name: ${selectedOption.value}`;
       selected.value = this.doctorsName;
   
@@ -199,6 +199,7 @@ export default class Visit {
           detailsContainer.innerHTML = "";
   
           for (const key in modalInputData) {
+            
             if (Object.hasOwnProperty.call(modalInputData, key) && key !== "doctor") {
               const value = modalInputData[key];
               const detailsElement = document.createElement("p");
