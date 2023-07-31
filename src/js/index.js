@@ -207,8 +207,8 @@ function createVisit() {
         createVisitModal.render(content);
         const modalBody = createVisitModal.modal.querySelector('.modal-body');
         const createButton = modalBody.querySelector('.create-button');
-        createButton.disabled = true
         // Event delegation to handle the change event on the select element
+        createButton.disabled = true;
         modalBody.addEventListener('change', (event) => {
             const select = event.target;
             if (select.id === 'create-visit') {
@@ -310,7 +310,6 @@ const sendCards = async (obj, selectedOption, createVisitModal) => {
             if (noItemMsg) {
                 noItemMsg.style.display = 'none'
             }
-            // Close the modal when the response is successful    
             const data = await response.json();
             const newVisit = new Visit(fullName, selectedOption, data.id, details)
             newVisit.render();
@@ -385,7 +384,7 @@ searchBtn.addEventListener('click', (e) => {
 export async function sendEditedDataToServer(editedData, editedId) {
     try {
         const response = await fetch(`https://ajax.test-danit.com/api/v2/cards/${editedId}`, {
-            method: 'PUT', // Use 'PUT' method to update the existing data on the server
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -400,11 +399,8 @@ export async function sendEditedDataToServer(editedData, editedId) {
             applyFilters(visits);
             return response
         }
-
-        // Optionally, you can handle the response from the server here, if needed.
     } catch (error) {
         console.error('Error updating data on the server:', error);
-        // Handle error scenarios, e.g., show an error message to the user.
     }
 }
 

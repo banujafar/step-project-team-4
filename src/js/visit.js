@@ -191,7 +191,6 @@ export default class Visit {
   
       sendEditedDataToServer(modalInputData, this.id)
         .then((response) => {
-          // Assuming the server response contains the updated data
           console.log("Data updated:", response);
           const detailsContainer = this.visitItem.querySelector(".details-info");
           const showMoreButton = this.visitItem.querySelector(".show-more-btn");
@@ -209,7 +208,6 @@ export default class Visit {
             }
           }
   
-          // Toggle the detailsShown flag and update the show more/less button accordingly
           if (!this.detailsShown) {
             this.detailsShown = true;
             showMoreButton.textContent = "Show Less";
