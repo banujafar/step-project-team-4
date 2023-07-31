@@ -395,6 +395,9 @@ export async function sendEditedDataToServer(editedData, editedId) {
 
         if (response.ok) {
             cachedData = null;
+            const data = await fetchCards();
+            const visits = visitsCard(data);
+            applyFilters(visits);
             return response
         }
 
